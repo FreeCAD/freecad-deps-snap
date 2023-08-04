@@ -1,5 +1,5 @@
-name: freecad-deps-core20
-base: core20
+name: freecad-deps-core22
+base: core22
 adopt-info: version
 summary: Dependencies for FreeCAD snaps
 description: |
@@ -22,7 +22,7 @@ parts:
   occt:
     plugin: cmake
     source: https://gitlab.com/blobfish/occt.git
-    source-branch: V7_6_3_BF
+    source-branch: V7_7_1_BF
     cmake-parameters:
       - -DCMAKE_INSTALL_PREFIX=/usr
       - -DUSE_TBB:BOOL=on
@@ -52,7 +52,7 @@ parts:
     after: [occt]
     plugin: cmake
     source: https://gitlab.onelab.info/gmsh/gmsh.git
-    source-tag: gmsh_4_10_5
+    source-tag: gmsh_4_11_1
     cmake-parameters:
       - -DCMAKE_INSTALL_PREFIX=/usr
       - -DCMAKE_PREFIX_PATH=${SNAPCRAFT_STAGE}/usr
