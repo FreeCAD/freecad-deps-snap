@@ -37,6 +37,7 @@ parts:
       - tcl-dev
       - tk-dev
       - libtbb-dev
+      - libtbbmalloc2
       - libgl-dev
       - rapidjson-dev
     override-build: |
