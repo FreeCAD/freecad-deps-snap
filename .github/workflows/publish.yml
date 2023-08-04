@@ -3,7 +3,7 @@ name: Publish
 on:
   push:
     branches:
-      - master
+      - core22
 
 jobs:
   publish_amd64:
