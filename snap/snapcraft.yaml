@@ -25,7 +25,7 @@ parts:
     source-branch: V7_7_1_BF
     cmake-parameters:
       - -DCMAKE_INSTALL_PREFIX=/usr
-      - -DUSE_TBB:BOOL=on
+      - -DUSE_TBB:BOOL=off
       - -DUSE_VTK:BOOL=off
       - -DUSE_FREEIMAGE:BOOL=on
       - -DBUILD_RELEASE_DISABLE_EXCEPTIONS:BOOL=off
@@ -36,8 +36,6 @@ parts:
       - libfreetype6-dev
       - tcl-dev
       - tk-dev
-      - libtbb-dev
-      - libtbbmalloc2
       - libgl-dev
       - rapidjson-dev
     override-build: |
