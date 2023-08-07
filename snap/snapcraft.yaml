@@ -5,19 +5,19 @@ summary: Dependencies for FreeCAD snaps
 description: |
   - OCCT
   - GMSH
-
+version: 584f6278
 grade: stable
 confinement: strict
 
 parts:
-  version:
-    plugin: nil
-    build-packages:
-      - git
-    override-build: |
-      cd "${SNAPCRAFT_PROJECT_DIR}"
-      git_hash=$(git rev-parse --short=8 HEAD)
-      snapcraftctl set-version "${git_hash}"
+  # version:
+  #   plugin: nil
+  #   build-packages:
+  #     - git
+  #   override-build: |
+  #    # cd "${SNAPCRAFT_PROJECT_DIR}"
+  #    # git_hash=$(git rev-parse --short=8 HEAD)
+  #     craftctl set-version "584f6278"
 
   occt:
     plugin: cmake
@@ -38,9 +38,11 @@ parts:
       - tk-dev
       - libgl-dev
       - rapidjson-dev
+    build-environment:
+      - LD_LIBRARY_PATH: "$CRAFT_STAGE/usr/lib/$CRAFT_ARCH_TRIPLET/"
     override-build: |
-      snapcraftctl build
-      find "${SNAPCRAFT_PART_INSTALL}/usr/lib/cmake" \
+      craftctl default
+      find "${CRAFT_PART_INSTALL}/usr/lib/cmake" \
         -type f \
         -name "*.cmake" \
         -exec sed -i -e 's|\\${OCCT_INSTALL_BIN_LETTER}||g' {} \;
@@ -52,13 +54,17 @@ parts:
     plugin: cmake
     source: https://gitlab.onelab.info/gmsh/gmsh.git
     source-tag: gmsh_4_11_1
+    build-packages:
+      - tk-dev
     cmake-parameters:
       - -DCMAKE_INSTALL_PREFIX=/usr
-      - -DCMAKE_PREFIX_PATH=${SNAPCRAFT_STAGE}/usr
+      - -DCMAKE_PREFIX_PATH=${CRAFT_STAGE}/usr
       - -DCMAKE_BUILD_TYPE=Release
       - -DENABLE_BUILD_DYNAMIC=1
       - -DENABLE_MED=0
       - -DENABLE_FLTK=0
+    build-environment:
+      - LD_LIBRARY_PATH: "$CRAFT_STAGE/usr/lib/$CRAFT_ARCH_TRIPLET:$CRAFT_STAGE/usr/lib"
   
   cleanup:
     after: [occt, gmsh]
@@ -66,7 +72,7 @@ parts:
     override-prime: |
       set -eux
       for cruft in bug lintian man; do
-        rm -rf $SNAPCRAFT_PRIME/usr/share/$cruft
+        rm -rf $CRAFT_PRIME/usr/share/$cruft
       done
-      find $SNAPCRAFT_PRIME/usr/share/doc/ -type f -not -name 'copyright' -delete
-      find $SNAPCRAFT_PRIME/usr/share -type d -empty -delete
+      find $CRAFT_PRIME/usr/share/doc/ -type f -not -name 'copyright' -delete
+      find $CRAFT_PRIME/usr/share -type d -empty -delete
