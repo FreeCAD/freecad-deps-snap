@@ -1,5 +1,5 @@
-name: freecad-deps-core20
-base: core20
+name: freecad-deps-core24
+base: core24
 adopt-info: version
 summary: Dependencies for FreeCAD snaps
 description: |
@@ -15,22 +15,26 @@ parts:
     build-packages:
       - git
     override-build: |
-      cd "${SNAPCRAFT_PROJECT_DIR}"
+      cd "${CRAFT_PROJECT_DIR}"
       git_hash=$(git rev-parse --short=8 HEAD)
-      snapcraftctl set-version "${git_hash}"
+      craftctl set version="${git_hash}"
 
   occt:
     plugin: cmake
     source: https://gitlab.com/blobfish/occt.git
-    source-branch: V7_6_3_BF
+    source-branch: V7_8_0_BF
     cmake-parameters:
       - -DCMAKE_INSTALL_PREFIX=/usr
-      - -DUSE_TBB:BOOL=on
+      - -DCMAKE_PREFIX_PATH=${CRAFT_STAGE}/usr
+      - -DUSE_TBB:BOOL=off
       - -DUSE_VTK:BOOL=off
       - -DUSE_FREEIMAGE:BOOL=on
       - -DBUILD_RELEASE_DISABLE_EXCEPTIONS:BOOL=off
       - -DUSE_RAPIDJSON:BOOL=on
       - -DCMAKE_BUILD_TYPE=Release
+      - -DCMAKE_FIND_ROOT_PATH=$CRAFT_STAGE
+      - -D3RDPARTY_TBB_LIBRARY_DIR=$CRAFT_STAGE/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR
+      - -D3RDPARTY_TBBMALLOC_LIBRARY_DIR=$CRAFT_STAGE/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR
     build-packages:
       - libfreeimage-dev
       - libfreetype6-dev
@@ -39,12 +43,17 @@ parts:
       - libtbb-dev
       - libgl-dev
       - rapidjson-dev
+    stage-packages:
+      - libtbb12
+      - libtbbmalloc2
     override-build: |
-      snapcraftctl build
-      find "${SNAPCRAFT_PART_INSTALL}/usr/lib/cmake" \
+      craftctl default
+      find "${CRAFT_PART_INSTALL}/usr/lib/cmake" \
         -type f \
         -name "*.cmake" \
         -exec sed -i -e 's|\\${OCCT_INSTALL_BIN_LETTER}||g' {} \;
+    build-environment:
+      - LD_LIBRARY_PATH: $CRAFT_STAGE/usr/lib:$CRAFT_STAGE/lib/:$CRAFT_STAGE/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR
     prime:
       -  -usr/share/opencascade
 
@@ -52,22 +61,23 @@ parts:
     after: [occt]
     plugin: cmake
     source: https://gitlab.onelab.info/gmsh/gmsh.git
-    source-tag: gmsh_4_10_5
+    source-tag: gmsh_4_13_1
     cmake-parameters:
       - -DCMAKE_INSTALL_PREFIX=/usr
-      - -DCMAKE_PREFIX_PATH=${SNAPCRAFT_STAGE}/usr
+      - -DCMAKE_PREFIX_PATH=${CRAFT_STAGE}/usr
       - -DCMAKE_BUILD_TYPE=Release
       - -DENABLE_BUILD_DYNAMIC=1
       - -DENABLE_MED=0
       - -DENABLE_FLTK=0
-  
+    build-environment:
+      - LD_LIBRARY_PATH: $CRAFT_STAGE/usr/lib:$CRAFT_STAGE/lib/:$CRAFT_STAGE/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR
   cleanup:
     after: [occt, gmsh]
     plugin: nil
     override-prime: |
       set -eux
       for cruft in bug lintian man; do
-        rm -rf $SNAPCRAFT_PRIME/usr/share/$cruft
+        rm -rf $CRAFT_PRIME/usr/share/$cruft
       done
-      find $SNAPCRAFT_PRIME/usr/share/doc/ -type f -not -name 'copyright' -delete
-      find $SNAPCRAFT_PRIME/usr/share -type d -empty -delete
+      find $CRAFT_PRIME/usr/share/doc/ -type f -not -name 'copyright' -delete
+      find $CRAFT_PRIME/usr/share -type d -empty -delete
