@@ -1,4 +1,4 @@
-name: furgo-freecad-deps-core24
+name: freecad-deps-core24
 base: core24
 adopt-info: version
 summary: Dependencies for FreeCAD snaps
