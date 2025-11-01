@@ -71,8 +71,63 @@ parts:
       - -DENABLE_FLTK=0
     build-environment:
       - LD_LIBRARY_PATH: $CRAFT_STAGE/usr/lib:$CRAFT_STAGE/lib/:$CRAFT_STAGE/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR
+
+  elmer: # FEM
+    after: [occt]
+    plugin: cmake
+    source: https://github.com/ElmerCSC/elmerfem.git
+    source-branch: devel
+    override-build: |
+      craftctl default
+      # Create a symlink to make the infinipath library discoverable by OpenMPI, only on amd64
+      # This library is not available in other architectures (e.g. arm64)
+      if [ "$CRAFT_ARCH_BUILD_FOR" = amd64 ]; then
+        mkdir -p $CRAFT_PART_INSTALL/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR
+        ln -sf ../libpsm1/libpsm_infinipath.so.1.16 $CRAFT_PART_INSTALL/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libpsm_infinipath.so.1
+      fi
+    cmake-parameters:
+      - -DCMAKE_INSTALL_PREFIX=/usr
+      - -DCMAKE_PREFIX_PATH=${CRAFT_STAGE}/usr # Use OCCT from this same snap
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DWITH_MPI:BOOL=TRUE
+      - -DWITH_OpenMP:BOOL=TRUE
+      - -DWITH_ElmerIce:BOOL=TRUE
+      - -DELMER_SOLVER_HOME=/usr/share/elmersolver
+      - -DWITH_MUMPS:BOOL=TRUE
+      - -DWITH_HYPRE:BOOL=TRUE
+      - -DWITH_LUA:BOOL=TRUE
+      - -DWITH_MATC:BOOL=TRUE
+      - -DWITH_ELMERGUI:BOOL=FALSE
+      - -DWITH_OCC:BOOL=TRUE # Can now be enabled as it will find the OCCT part
+      - -DWITH_VTK:BOOL=FALSE
+      - -DWITH_PARAVIEW:BOOL=FALSE
+    build-packages:
+      - build-essential
+      - cmake
+      - gfortran
+      - libblas-dev
+      - liblapack-dev
+      - libopenmpi-dev
+      - libmumps-dev
+      - libparmetis-dev
+      - libmetis-dev
+      - libhypre-dev
+      - liblua5.1-0-dev
+    stage-packages:
+      - libblas3
+      - liblapack3
+      - libopenmpi3t64
+      - libmumps-5.6t64
+      - libparmetis4.0
+      - libmetis5
+      - libhypre-2.28.0
+      - liblua5.1-0
+      - on amd64: [libpsm-infinipath1]
+    build-environment:
+      - LD_LIBRARY_PATH: $CRAFT_STAGE/usr/lib:$CRAFT_STAGE/lib/:$CRAFT_STAGE/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR
+
   cleanup:
-    after: [occt, gmsh]
+    after: [occt, gmsh, elmer]
     plugin: nil
     override-prime: |
       set -eux
