@@ -125,42 +125,6 @@ parts:
       - on amd64: [libpsm-infinipath1]
     build-environment:
       - LD_LIBRARY_PATH: $CRAFT_STAGE/usr/lib:$CRAFT_STAGE/lib/:$CRAFT_STAGE/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR
-    prime:
-      # Exclude all build-time binaries by default.
-      - -usr/bin/*
-
-      # --- Explicitly keep the required Elmer executables ---
-      - usr/bin/ElmerGrid
-      - usr/bin/ElmerSolver
-      - usr/bin/ElmerSolver_mpi
-      - usr/bin/elmerf90
-      - usr/bin/matc
-      - usr/bin/Mesh2D
-      - usr/bin/ViewFactors
-
-      # --- Explicitly keep the required OpenMPI runtime executables ---
-      # These are needed for MPI initialization and job launching.
-      - usr/bin/orterun
-      - usr/bin/orted
-      - usr/bin/ompi_info
-      # Keep the MPI wrapper compiler scripts, as they are sometimes called by other tools.
-      - usr/bin/mpicc.openmpi
-      - usr/bin/mpic++.openmpi
-      - usr/bin/mpicxx.openmpi
-      - usr/bin/mpifort.openmpi
-      - usr/bin/opal_wrapper
-
-      # --- Exclude development, documentation, and static files ---
-      - -usr/include/*
-      - -usr/lib/cmake/*
-      - -usr/lib/pkgconfig/*
-      - -usr/share/doc/*
-      - -usr/share/man/*
-      - -usr/share/info/*
-      - -usr/lib/**/*.a
-
-      # Keep the Elmer-specific data files.
-      - usr/share/elmersolver/*
 
   cleanup:
     after: [occt, gmsh, elmer]
