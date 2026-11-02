@@ -21,8 +21,9 @@ parts:
 
   occt:
     plugin: cmake
-    source: https://gitlab.com/blobfish/occt.git
-    source-branch: V7_8_0_BF
+    source: https://github.com/Open-Cascade-SAS/OCCT.git
+    source-tag: V8_0_1
+    source-depth: 1
     cmake-parameters:
       - -DCMAKE_INSTALL_PREFIX=/usr
       - -DCMAKE_PREFIX_PATH=${CRAFT_STAGE}/usr
@@ -61,7 +62,12 @@ parts:
     after: [occt]
     plugin: cmake
     source: https://gitlab.onelab.info/gmsh/gmsh.git
-    source-tag: gmsh_4_13_1
+    source-tag: gmsh_4_15_2
+    override-pull: |
+      craftctl default
+      for p in cxx17_for_occt occt800_api_compat mpeg_encode_minmax_cxx17; do
+        git apply "$CRAFT_PROJECT_DIR/snap/local/patches/gmsh/$p.patch"
+      done
     cmake-parameters:
       - -DCMAKE_INSTALL_PREFIX=/usr
       - -DCMAKE_PREFIX_PATH=${CRAFT_STAGE}/usr
