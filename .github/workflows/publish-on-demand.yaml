@@ -2,6 +2,12 @@ name: Publish on demand
 
 on:
   workflow_dispatch: # Allows manual triggering
+    inputs:
+      release_channel:
+        description: 'Store channel to release to (e.g. edge, latest/edge/occt8)'
+        required: true
+        default: edge
+        type: string
 
 env:
   # Log path location for containerized builds
@@ -37,7 +43,7 @@ jobs:
         with:
           # The action's output provides the snap path directly
           snap: ${{ steps.build.outputs.snap }}
-          release: edge
+          release: ${{ inputs.release_channel }}
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
 
